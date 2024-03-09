@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 class ProductManager {
     static ultID = 0;
 
@@ -36,19 +38,45 @@ class ProductManager {
     getProductById(id) {
         const product = this.products.find(item => item.id === id);
 
-        if (!product) {
-            console.log("Producto no encontrado");
-        } else {
+        if (product) {
             console.log("Producto encontrado", product);
+        } else {
+            console.log("Producto no encontrado");
+        }
+    }
+
+    async saveProductsToFile(filePath) {
+        try {
+            await fs.promises.writeFile(filePath, JSON.stringify(this.products, null, 2));
+            console.log("Productos guardados en el archivo:", filePath);
+        } catch (error) {
+            console.error("Error al guardar productos:", error);
+        }
+    }
+
+    async loadProductsFromFile(filePath) {
+        try {
+            const data = await fs.promises.readFile(filePath, "utf-8");
+            const loadedProducts = JSON.parse(data);
+            this.products = loadedProducts;
+            console.log("Productos cargados desde el archivo:", filePath);
+        } catch (error) {
+            console.error("Error al cargar productos desde el archivo:", error);
         }
     }
 }
 
 const manager = new ProductManager();
 
-console.log(manager.getProducts());
-
 manager.addProduct("zapatillas", "producto prueba", 79000, "sin imagen", "AirMax1", 10);
 manager.addProduct("zapatillas", "producto prueba", 79000, "sin imagen", "Airforce", 10);
 manager.addProduct("zapatillas", "producto prueba", 79000, "sin imagen", "NewBalance", 10);
+
+
+manager.saveProductsToFile("./productos.json");
+
+
+manager.loadProductsFromFile("./productos.json");
+
+
 console.log(manager.getProducts());
